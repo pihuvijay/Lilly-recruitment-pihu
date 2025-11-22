@@ -142,11 +142,17 @@ function displayMedicines(medicines) {
         const qualityClass = (medName.hasIssue || priceInfo.hasIssue) ? 'data-issues' : 'data-clean';
         medElement.classList.add(qualityClass);
         
-        // ### NEW - Medicine HTML with warning/success icons ###
+        // ### NEW - Medicine HTML with warning/success icons and delete button ###
         medElement.innerHTML = `
-            <strong class="medicine-name">${medName.value}</strong>: 
-            <span class="medicine-price">${priceInfo.display}</span>
-            ${medName.hasIssue || priceInfo.hasIssue ? '<span class="data-warning">⚠️</span>' : '<span class="data-clean-icon">✓</span>'}
+            <div class="medicine-info">
+                <strong class="medicine-name">${medName.value}</strong>: 
+                <span class="medicine-price">${priceInfo.display}</span>
+                ${medName.hasIssue || priceInfo.hasIssue ? '<span class="data-warning">⚠️</span>' : '<span class="data-clean-icon">✓</span>'}
+            </div>
+            <div class="medicine-actions">
+                <button class="edit-btn" onclick="editMedicine('${medName.value.replace(/'/g, "\\'")}')">Edit</button>
+                <button class="delete-btn" onclick="deleteMedicine('${medName.value.replace(/'/g, "\\'")}')">Delete</button>
+            </div>
         `;
         
         // ### NEW - Comprehensive tooltip generation ###
@@ -325,7 +331,58 @@ function createMedicine(name, price) {
         })
         .catch((error) => {
             console.error("Error creating medicine:", error);
-            alert("Failed to add medicine.");
+            showNotification('Failed to add medicine. Please try again.', 'error');
+        })
+        .finally(() => {
+            showFormLoading(false);
+        });
+}
+
+// ### NEW - Update medicine function ###
+function updateMedicine(originalName, newName, newPrice) {
+    fetch("http://localhost:8000/update", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+            original_name: originalName,  // Original name to find the medicine
+            name: newName,                // New name to update to
+            price: parseFloat(newPrice)   // New price
+        }),
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then((data) => {
+            if (data.error) {
+                showNotification(`Error: ${data.error}`, 'error');
+            } else {
+                showNotification(`Successfully updated "${newName}"`, 'success');
+                
+                // Reset form to add mode
+                const form = document.getElementById('addMedicineForm');
+                form.dataset.editMode = 'false';
+                delete form.dataset.originalName;
+                form.querySelector('button[type="submit"]').textContent = 'Add Medicine';
+                
+                // Clear form
+                document.getElementById("medName").value = "";
+                document.getElementById("medPrice").value = "";
+                
+                // Refresh the medicine list
+                fetchMedicines();
+            }
+        })
+        .catch((error) => {
+            console.error("Error updating medicine:", error);
+            showNotification('Failed to update medicine. Please try again.', 'error');
+        })
+        .finally(() => {
+            showFormLoading(false);
         });
 }
 
@@ -417,4 +474,101 @@ function showNotification(message, type = 'info') {
     setTimeout(() => {
         notification.classList.add('show');
     }, 100);
+}
+
+// ### NEW - Delete medicine functionality ###
+function deleteMedicine(medicineName) {
+    if (!confirm(`Are you sure you want to delete "${medicineName}"?`)) {
+        return;
+    }
+    
+    fetch(`http://localhost:8000/delete`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({ name: medicineName })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.error) {
+            showNotification(`Error: ${data.error}`, 'error');
+        } else {
+            showNotification(`Successfully deleted "${medicineName}"`, 'success');
+            fetchMedicines(); // Refresh the list
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting medicine:', error);
+        showNotification('Failed to delete medicine. Please try again.', 'error');
+    });
+}
+
+// ### NEW - Edit medicine functionality ###
+function editMedicine(medicineName) {
+    // Find the medicine data to pre-fill the form
+    fetch(`http://localhost:8000/medicines`)
+    .then(response => response.json())
+    .then(data => {
+        const medicine = data.medicines.find(med => med.name === medicineName);
+        if (medicine) {
+            // Pre-fill the form
+            document.getElementById('medName').value = medicine.name;
+            document.getElementById('medPrice').value = medicine.price || '';
+            
+            // Change form to edit mode
+            const form = document.getElementById('addMedicineForm');
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.textContent = 'Update Medicine';
+            form.dataset.editMode = 'true';
+            form.dataset.originalName = medicineName;
+            
+            // Add cancel button if it doesn't exist
+            let cancelButton = form.querySelector('.cancel-btn');
+            if (!cancelButton) {
+                cancelButton = document.createElement('button');
+                cancelButton.type = 'button';
+                cancelButton.className = 'cancel-btn';
+                cancelButton.textContent = 'Cancel';
+                cancelButton.onclick = cancelEdit;
+                submitButton.parentNode.insertBefore(cancelButton, submitButton.nextSibling);
+            }
+            
+            // Scroll to form
+            form.scrollIntoView({ behavior: 'smooth' });
+            
+            showNotification(`Editing "${medicineName}" - Update the fields and click Update Medicine`, 'info');
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching medicine for edit:', error);
+        showNotification('Failed to load medicine data for editing', 'error');
+    });
+}
+
+// ### NEW - Cancel edit functionality ###
+function cancelEdit() {
+    const form = document.getElementById('addMedicineForm');
+    
+    // Reset form to add mode
+    form.dataset.editMode = 'false';
+    delete form.dataset.originalName;
+    form.querySelector('button[type="submit"]').textContent = 'Add Medicine';
+    
+    // Remove cancel button
+    const cancelButton = form.querySelector('.cancel-btn');
+    if (cancelButton) {
+        cancelButton.remove();
+    }
+    
+    // Clear form
+    document.getElementById('medName').value = '';
+    document.getElementById('medPrice').value = '';
+    
+    showNotification('Edit cancelled', 'info');
 }

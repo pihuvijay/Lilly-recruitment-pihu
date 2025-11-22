@@ -30,41 +30,60 @@ I used a incremental development approach, ensuring each objective was fully wor
 - Implemented proper JSON parsing and error catching
 - Added loading states during data fetching
 
-### Objective 2: Comprehensive Error Handling ✅
+### Objective 2: Comprehensive Error Handling
 **Goal**: Handle missing/invalid data without crashing
 
 **What I Implemented**:
 - **Data Validation**: Checks for empty names, null prices, invalid data types
-- **Visual Indicators**: ⚠️ for problems, ✓ for clean data
+- **Visual Indicators**: Warning icons for problems, check marks for clean data
 - **Duplicate Detection**: Finds and flags duplicate medicine names
 - **Quality Reporting**: Shows data quality statistics ("8 medicines, 6 valid (75%)")
 - **Graceful Degradation**: App continues working even with bad data
 - **Detailed Tooltips**: Hover over icons to see specific issues
 
-**Technical Details**:
-- Created `validateMedicineName()` and `validateMedicinePrice()` functions
-- Added comprehensive error checking for edge cases
-- Implemented visual feedback system with CSS classes
-- Built data quality tracking and reporting system
+**Files Modified:**
+- `frontend/script.js` - Added `validateMedicineName()` and `validateMedicinePrice()` functions
+- `frontend/script.js` - Enhanced `displayMedicines()` with data quality tracking
+- `frontend/style.css` - Added CSS classes for data quality indicators (`.data-warning`, `.data-clean-icon`)
+- `frontend/style.css` - Added styling for tooltips and quality reporting
 
-### Objective 3: User-Friendly Forms ✅
+**Technical Details:**
+- Created comprehensive validation functions for all data types
+- Added visual feedback system with CSS classes and icons
+- Built data quality tracking and percentage reporting
+- Implemented detailed tooltips for issue explanation
+
+### Objective 3: User-Friendly Forms
 **Goal**: Create intuitive forms for data input
 
 **What I Implemented**:
-- **Enhanced Validation**: Real-time form validation with specific error messages
-- **Modern Notifications**: Replaced alerts with professional slide-in notifications
-- **Edit/Delete Functionality**: Click buttons to edit or remove medicines
-- **Form Modes**: Form switches between "Add" and "Update" modes
-- **Loading States**: Buttons show "Adding Medicine..." during submission
-- **Visual Feedback**: Red borders and error messages for invalid inputs
+- **Real-time form validation** with specific, helpful error messages
+- **Modern notification system** replacing basic alerts with color-coded notifications
+- **Complete CRUD operations**: Create, Read, Update, Delete medicines
+- **Edit functionality**: Click orange "Edit" button to modify existing medicines
+- **Delete functionality**: Click red "Delete" button with confirmation dialog
+- **Form mode switching**: Seamlessly switches between "Add" and "Update" modes
+- **Loading states**: Shows "Adding Medicine..." or "Updating Medicine..." during submission
+- **Visual feedback**: Red borders and error messages for invalid inputs
+- **Cancel functionality**: Gray "Cancel" button when editing to abort changes
+- **Auto-refresh**: Medicine list updates automatically after any changes
 
-**Technical Details**:
-- Built notification system with auto-dismiss and manual close
-- Created edit mode with form pre-filling and cancel functionality
-- Added comprehensive form validation with user-friendly messages
-- Implemented loading states and success/error feedback
+**Files Modified:**
+- `frontend/script.js` - Added `createMedicine()`, `updateMedicine()`, `deleteMedicine()`, `editMedicine()` functions
+- `frontend/script.js` - Added `showNotification()`, `showFormLoading()`, `clearValidationErrors()` helper functions
+- `frontend/script.js` - Enhanced form submission with validation and mode switching
+- `frontend/style.css` - Added styles for edit/delete buttons (`.edit-btn`, `.delete-btn`)
+- `frontend/style.css` - Added notification system styling (`.notification`, `.notification-success`, etc.)
+- `frontend/style.css` - Added form validation styling (`.error`, `.field-error`)
+- `backend/main.py` - Modified `/update` endpoint to accept `original_name`, `name`, and `price` parameters
 
-### Objective 4: Modern UI/UX Design ✅
+**Technical Details:**
+- Built comprehensive CRUD operations with proper API integration
+- Created notification system with auto-dismiss and manual close
+- Implemented form mode switching with pre-filling and cancel functionality
+- Added loading states and comprehensive error handling for all operations
+
+### Objective 4: Modern UI/UX Design
 **Goal**: Improve overall design and user experience
 
 **What I Implemented**:
@@ -75,11 +94,21 @@ I used a incremental development approach, ensuring each objective was fully wor
 - **Professional Branding**: Gradient header, subtitle, and consistent styling
 - **Accessibility**: Proper focus states, contrast, and keyboard navigation
 
-**Technical Details**:
-- Used CSS Variables for consistent theming
-- Implemented mobile-first responsive design
-- Added gradient backgrounds and professional shadows
-- Created hover effects and smooth interactions
+**Files Modified:**
+- `frontend/style.css` - Added CSS variables for consistent color theming (`:root` section)
+- `frontend/style.css` - Imported Google Fonts (Inter) for modern typography
+- `frontend/style.css` - Updated body styling with gradient background and professional fonts
+- `frontend/style.css` - Redesigned header with gradient text and medical branding
+- `frontend/style.css` - Enhanced medicine cards with shadows, hover effects, and modern layout
+- `frontend/style.css` - Updated form styling with modern inputs, buttons, and spacing
+- `frontend/style.css` - Added responsive design with mobile-first media queries
+- `frontend/style.css` - Added accessibility improvements (focus states, scrollbar styling)
+
+**Technical Details:**
+- Used CSS Variables for consistent theming across the application
+- Implemented mobile-first responsive design with proper breakpoints
+- Added gradient backgrounds and professional shadows for depth
+- Created hover effects and smooth interactions for better UX
 
 ## Technical Achievements
 
@@ -121,19 +150,19 @@ I used a incremental development approach, ensuring each objective was fully wor
 ## Testing & Validation
 
 ### Manual Testing Completed
-- ✅ Add medicines with various inputs (valid/invalid)
-- ✅ Edit existing medicines
-- ✅ Delete medicines with confirmation
-- ✅ Calculate average prices
-- ✅ Test responsive design on different screen sizes
-- ✅ Verify error handling with bad data
-- ✅ Check accessibility with keyboard navigation
+- Add medicines with various inputs (valid/invalid)
+- Edit existing medicines
+- Delete medicines with confirmation
+- Calculate average prices
+- Test responsive design on different screen sizes
+- Verify error handling with bad data
+- Check accessibility with keyboard navigation
 
 ### Browser Compatibility
-- ✅ Chrome (primary testing)
-- ✅ Safari
-- ✅ Firefox
-- ✅ Mobile browsers
+- Chrome (primary testing)
+- Safari
+- Firefox
+- Mobile browsers
 
 ## Final Results
 

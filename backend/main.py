@@ -82,12 +82,13 @@ def create_med(name: str = Form(...), price: float = Form(...)):
     return {"message": f"Medicine created successfully with name: {name}"}
 
 @app.post("/update")
-def update_med(name: str = Form(...), price: float = Form(...)):
+def update_med(original_name: str = Form(...), name: str = Form(...), price: float = Form(...)):
     """
-    This function updates the price of a medicine with the specified name.
-    It expects the name and price to be provided as form data.
+    This function updates both the name and price of a medicine.
+    It expects the original name, new name, and new price to be provided as form data.
     Args:
-        name (str): The name of the medicine.
+        original_name (str): The current name of the medicine to find it.
+        name (str): The new name of the medicine.
         price (float): The new price of the medicine.
     Returns:
         dict: A message confirming the medicine was updated successfully.
@@ -95,12 +96,13 @@ def update_med(name: str = Form(...), price: float = Form(...)):
     with open('data.json', 'r+') as meds:
         current_db = json.load(meds)
         for med in current_db["medicines"]:
-            if med['name'] == name:
-                med['price'] = price
+            if med['name'] == original_name:
+                med['name'] = name  # Update the name
+                med['price'] = price  # Update the price
                 meds.seek(0)
                 json.dump(current_db, meds)
                 meds.truncate()
-                return {"message": f"Medicine updated successfully with name: {name}"}
+                return {"message": f"Medicine updated successfully from '{original_name}' to '{name}'"}
     return {"error": "Medicine not found"}
 
 @app.delete("/delete")
